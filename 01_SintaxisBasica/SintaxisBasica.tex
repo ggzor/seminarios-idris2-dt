@@ -1,0 +1,698 @@
+\documentclass{beamer}
+\usetheme[progressbar=frametitle]{metropolis}
+\setbeamertemplate{frame numbering}[fraction]
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usefonttheme{metropolis}
+
+% Barra de progreso más ancha
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{2pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{2pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{2pt}
+\makeatother
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[compatibility=false]{caption}
+\usepackage[listings,theorems]{tcolorbox}
+\usepackage{minted}
+
+\usemintedstyle{friendly}
+
+\DeclareCaptionFont{captionfont}{\fontsize{8}{8}\selectfont}
+\captionsetup{font=captionfont}
+
+\title{Programación con tipos dependientes en Idris 2}
+\subtitle{Sintaxis básica I}
+\author{Axel Suárez Polo}
+\institute{BUAP}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Contenidos}
+  \tableofcontents
+\end{frame}
+
+\section{Introducción}
+
+\begin{frame}
+  \frametitle{¿Qué es Idris?}
+
+  \begin{itemize}
+    \item Es un lenguaje funcional \textbf{puro} con \textbf{tipos dependientes}.
+    \item Tiene un sistema de tipos similar al de \textbf{Agda}.
+    \item Tiene una sintaxis y manejo de efectos similar a \textbf{Haskell}
+    \item Busca ser un lenguaje práctico pero con tipos dependientes.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Un ejemplo de Idris}
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.6\textwidth}
+        \inputminted{idris}{code/helloworld.idr}
+      \end{minipage}
+    \end{center}
+    \caption{Hello world en Idris}
+    \label{lst:helloworld}
+  \end{listing}
+\end{frame}
+
+\section{Sintaxis básica}
+\subsection{Tipos básicos y literales}
+\subsection{Tipos compuestos básicos}
+
+\begin{frame}[fragile]
+  \frametitle{Comentarios}
+
+  En Idris existen 3 tipos de comentarios:
+  \begin{itemize}
+    \item Comentarios de una sóla línea:
+      \vspace{5pt}
+      \begin{center}
+        \begin{minipage}{0.6\textwidth}
+          \begin{minted}[autogobble,linenos,mathescape,fontsize=\scriptsize]{idris}
+            -- este es un comentario
+            -- los comentarios comienzan con "--"
+          \end{minted}
+        \end{minipage}
+      \end{center}
+      \vspace{5pt}
+
+    \item Comentarios multilínea:
+      \vspace{5pt}
+      \begin{center}
+        \begin{minipage}{0.6\textwidth}
+          \begin{minted}[autogobble,linenos,mathescape,fontsize=\scriptsize]{idris}
+            {- este es un comentario
+            que se puede expandir por múltiples líneas
+            -}
+          \end{minted}
+        \end{minipage}
+      \end{center}
+      \vspace{5pt}
+
+    \item Comentarios de documentación:
+      \vspace{5pt}
+      \begin{center}
+        \begin{minipage}{0.6\textwidth}
+          \begin{minted}[autogobble,linenos,mathescape,fontsize=\scriptsize]{idris}
+            ||| Este comentario documenta una declaración
+            ||| Como ejemplo, main
+            main : IO ()
+            main = putStrLn "Hello World"
+          \end{minted}
+        \end{minipage}
+      \end{center}
+      \vspace{5pt}
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Top-level declarations}
+
+  \begin{itemize}
+    \item En Idris sólo existen declaraciones \emph{top-level} y \emph{locales}.
+    \item Las declaraciones \emph{top-level} tienen la siguiente sintaxis:
+  \end{itemize}
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.6\textwidth}
+        \begin{minted}[autogobble,linenos,mathescape,fontsize=\scriptsize]{idris}
+          -- <identificador> : <tipo>
+          -- <identificador> = <expresión>
+          x : Int
+          x = 10
+        \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Sintaxis de las declaraciones \emph{top-level}.}
+    \label{lst:toplevelsyntax}
+  \end{listing}
+
+  \begin{itemize}
+    \item Los \textbf{identificadores} deben coincidir.
+    \item La \textbf{expresión} debe ser del \textbf{tipo} especificado.
+  \end{itemize}
+
+  \footnotetext[1]{\tiny \textbf{Diferencias con Haskell}:
+  La anotación de tipo es obligatoria y
+  se utiliza \textbf{\scriptsize :} en lugar de \textbf{\scriptsize ::}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Identificadores}
+
+  \begin{itemize}
+    \item Los identificadores válidos son secuencias de caracteres que:
+      \begin{itemize}
+        \item \textbf{Comienzan con una letra} ya sea minúscula o mayúscula.
+        \item Seguido de 0 o más letras, números, apóstrofes o guiones bajos.
+        \item Terminan en espacio en blanco o algún carácter que no esté
+          en la lista anterior.
+      \end{itemize}
+    \item Identificadores válidos: \emph{x, y, var\_, Test, x''3, \alpha\xi\epsilon\lambda}
+    \item Identificadores inválidos: \emph{3x, x-y, \_ok, ?ok}
+  \end{itemize}
+
+  \footnotetext[1]{\tiny \textbf{Diferencias con Haskell}:
+    Las variables también pueden iniciar con mayúsula sin ser tipos. }
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos}
+
+  Los tipos son más complejos y existe una gran diversidad de estos:
+
+  \begin{itemize}
+    \item Tipos
+      \begin{itemize}
+        \item \textbf{Primitivos}
+          \begin{itemize}
+            \item \textbf{Numéricos}
+            \item \textbf{De texto}
+          \end{itemize}
+        \item Definidos por el usuario
+          \begin{itemize}
+            \item Records
+            \item ADTs (Algebraic Data Types)
+            \item GADTs
+          \end{itemize}
+        \item Compuestos
+          \begin{itemize}
+            \item \textbf{Tuplas}
+            \item \textbf{Funciones}*
+            \item Higher Kinded Types
+          \end{itemize}
+        \item Dependientes
+          \begin{itemize}
+            \item \Pi
+            \item \Sigma
+          \end{itemize}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Expresiones}
+
+  Las expresiones, al igual que los tipos, son bastante diversas:
+
+  \begin{itemize}
+    \item Expresiones
+      \begin{itemize}
+        \item Literales
+          \begin{itemize}
+            \item \textbf{Enteras}
+            \item \textbf{Punto flotante}
+            \item \textbf{Texto}
+            \item Lista
+            \item \textbf{Función (lambdas)}*
+          \end{itemize}
+        \item \textbf{Aplicación de funciones}*
+          \begin{itemize}
+            \item \textbf{Operadores y secciones}*
+          \end{itemize}
+        \item Identificadores
+        \item Azúcar sintáctica
+          \begin{itemize}
+            \item \mintinline{idris}|let|
+              , \mintinline{idris}|where|
+              , \mintinline{idris}|case|
+              , \mintinline{idris}|if|
+              , \mintinline{idris}|do|
+              , \mintinline{idris}|rewrite|
+            \item Comprensiones de mónadas y \textbf{!-}notation
+            \item Idiom brackets para aplicativos
+          \end{itemize}
+        \item Holes
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tipos numéricos}
+
+  En Idris existen los tipos númericos a los que estamos
+  acostumbrados de otros lenguajes y algunos nuevos:
+  \begin{itemize}
+    \item \mintinline{idris}|Int|: Entero de precisión fija, con al menos 32 bits.
+    \item \mintinline{idris}|Integer|: Entero de precisión no acotada.
+    \item \mintinline{idris}|Nat|: Entero sin signo de precisión no acotada.
+    \item \mintinline{idris}|Double|: Número de punto flotante de doble precisión.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Literales numéricas}
+
+  Para obtener un valor de alguno de los tipos mencionados,
+  podemos utilizar literales:
+
+  \begin{itemize}
+    \item Literales de enteros no-negativos para
+      \mintinline{idris}|Int, Integer y Nat|:
+      \begin{itemize}
+        \item \mintinline{idris}|202103 -- decimal|
+        \item \mintinline{idris}|0b0101 -- binario|
+        \item \mintinline{idris}|0o2321 -- octal|
+        \item \mintinline{idris}|0xefff -- hexadecimal|
+      \end{itemize}
+    \item Literales de enteros para
+      \mintinline{idris}|Int y Integer|:
+      \begin{itemize}
+        \item \emph{Todas las anteriores, y además con un '-' al inicio}
+        \item \mintinline{idris}|-202103|
+        \item \mintinline{idris}|-0xefff|
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Literales numéricas (continuación)}
+
+  \begin{itemize}
+    \item Literales de números de punto flotante para
+      \mintinline{idris}|Double|:
+      \begin{itemize}
+        \item \emph{Todas las anteriores}
+        \item \mintinline{idris}{2021.0312   -- decimal con punto}
+        \item \mintinline{idris}{0.2021e-3  -- científica}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Ejemplos literales numéricas}
+  \begin{columns}[T]
+
+    \begin{column}{.38\textwidth}
+      \begin{listing}[H]
+        \begin{center}
+          \begin{minipage}{0.6\textwidth}
+              \begin{minted}[fontsize=\scriptsize, autogobble]{idris}
+              x : Int
+              x = 10
+
+              y : Double
+              y = 12.2
+
+              z : Nat
+              z = 0b10101
+              \end{minted}
+          \end{minipage}
+        \end{center}
+        \caption{Literales numéricas en Idris}
+        \label{lst:litnumidris}
+      \end{listing}
+    \end{column}
+
+
+    \hspace{-0.05\textwidth}
+    \vrule
+    \hspace{0.025\textwidth}
+
+    \begin{column}{.58\textwidth}
+      \begin{listing}[H]
+        \begin{center}
+          \begin{minipage}{\textwidth}
+              \begin{minted}[fontsize=\scriptsize, autogobble, breaklines]{java}
+              int x = 10;
+
+
+              double y = 12.2;
+
+
+              // Más cercano
+              var z = BigInteger.valueOf(0b10101);
+              \end{minted}
+          \end{minipage}
+        \end{center}
+        \caption{Literales numéricas en Java}
+        \label{lst:litnumjava}
+      \end{listing}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tipos de texto}
+
+  También existen los tipos para manejar texto a los que estamos acostumbrados:
+
+  \begin{itemize}
+    \item \mintinline{idris}|Char|: Carácter Unicode (code point)
+    \item \mintinline{idris}|String|: Secuencia de longitud fija de
+      \mintinline{idris}{Char}'s
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Literales de texto}
+
+  Al igual que los tipos numéricos, los tipos de texto tienen literales:
+
+  \begin{itemize}
+    \item Literales de carácter para
+      \mintinline{idris}|Char|:
+      \begin{itemize}
+        \item \mintinline{idris}|'a'    -- carácter|
+        \item \mintinline{idris}|'λ'    -- carácter no ascii|
+        \item \mintinline{idris}|'\97'  -- literal decimal|
+        \item \mintinline{idris}|'\x61' -- literal hexadecimal|
+      \end{itemize}
+    \item Literales de cadena
+      \mintinline{idris}|String|:
+      \begin{itemize}
+        \item \mintinline{idris}|"letras" -- secuencias de caracteres|
+        \item \mintinline{idris}|"letr\97s"|
+        \item
+          \begin{minted}[autogobble]{idris}
+            " multiline
+            string
+            " -- pueden ocupar múltiples líneas
+          \end{minted}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos compuestos: Tuplas}
+
+  \begin{itemize}
+    \item El tipo compuesto más simple es la \textbf{tupla}.
+    \item Una \textbf{tupla} es una colección ordenada de tamaño fijo
+      que puede ser heterogénea.
+    \item La sintaxis para las tuplas en Idris es una lista de 2 o más valores
+      separados por comas y rodeados por paréntesis.
+
+    \begin{listing}[H]
+      \begin{center}
+        \begin{minipage}{0.7\textwidth}
+            \begin{minted}[fontsize=\scriptsize, autogobble]{idris}
+            persona : (String, Double)
+            persona = ("Juan", 9.8)
+
+            -- Pueden tener más de 2 valores
+            fecha : (Nat, Nat, Nat)
+            fecha = (12, 3, 2021)
+
+            -- Pueden anidarse y el anidamiento es significativo
+            exposición : ((String, Double), (Nat, Nat, Nat))
+            exposición = (persona, fecha)
+            -- exposición = (("Juan", 9.8), (12, 3, 2021))
+            \end{minted}
+        \end{minipage}
+      \end{center}
+      \caption{Tuplas en Idris}
+      \label{lst:tupidris}
+    \end{listing}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos compuestos: Tuplas (continuación)}
+
+  \begin{itemize}
+    \item Hay propiedades que no tienen las tuplas pero uno podría inferir
+      \emph{incorrectamente} que tienen:
+      \begin{itemize}
+        \item \textbf{No conmutan en general:}
+          \mintinline[fontsize=\scriptsize]{idris}{(String, Double) /= (Double, String) }
+        \item \textbf{No asocian:}
+          \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+            (String, (Double, Nat)) /= ((String, Double), Nat)
+                                    /= (String, Double, Nat)
+          \end{minted}
+      \end{itemize}
+    \item Sin embargo, los valores de estos tipos contienen la misma cantidad de
+      información, con lo que se pueden construir \textbf{isomorfismos} entre ellos.
+      \vspace{4pt}
+      \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+      (String, Double) ~ (Double, String)
+      ("Juan", 9.8) ~ (9.8, "Juan")
+      \end{minted}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos compuestos: Funciones}
+
+  \begin{itemize}
+    \item Uno de los tipos compuestos más útiles y centrales a la programación
+      funcional es el de \textbf{tipo de función}.
+    \item Un \textbf{tipo de función} está compuesto de uno o más
+      \emph{tipos de entrada} y un único \emph{tipo de salida}.
+    \item La sintaxis para representar un tipo de función es mediante una lista ordenada
+      de dos o más tipos separados por \mintinline[fontsize=\scriptsize]{idris}{->}
+      \\\scriptsize(un guión medio y un signo de mayor que).
+
+    \begin{listing}[H]
+      \begin{center}
+        \begin{minipage}{0.6\textwidth}
+            \begin{minted}[fontsize=\scriptsize, autogobble]{idris}
+            cuadrado : Double -> Double
+
+            edad : (String, Nat) -> Nat
+
+            sumar : Int -> Int -> Int
+
+            dividirEn : Int -> String -> (String, String)
+            \end{minted}
+        \end{minipage}
+      \end{center}
+      \caption{Tipos de función en Idris}
+      \label{lst:funidris}
+    \end{listing}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos compuestos: Funciones (continuación)}
+
+  \begin{itemize}
+    \item Al igual que con las tuplas, los tipos de función tienen algunas propiedades:
+      \begin{itemize}
+        \item \textbf{No conmutan en general:}\\
+          \mintinline[fontsize=\scriptsize]{idris}{String -> Int /= Int -> String}
+        \item \textbf{Asocian sólo a la derecha:} A diferencia de las tuplas, los tipos
+          de función si presentan asociatividad pero sólo hacia la derecha:\\
+          \begin{onlyenv}<2>
+            \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+          --I     I      O      I       I      O
+            \end{minted}
+          \end{onlyenv}
+          \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+          Int -> Int -> Int == Int -> (Int -> Int)
+          \end{minted}
+          \begin{onlyenv}<2>
+            \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+          --I     I      O      I       O      O
+            \end{minted}
+          \end{onlyenv}
+          \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+          Int -> Int -> Int /= (Int -> Int) -> Int
+          \end{minted}
+          Una forma de no perderse es recordar que los tipos de función ``marcan"
+          a los tipos como de entrada o de salida, por lo que un tipo de entrada nunca
+          puede convertirse en uno de salida.
+      \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos compuestos: Funciones (continuación)}
+
+  \begin{itemize}
+    \item También presentan \textbf{isomorfismos} que más adelante serán vistos:
+
+    \vspace{4pt}
+    \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+    -- atestiguado por flip
+    Int -> Double -> String  ~  Double -> Int -> String
+    -- atestiguado por curry y uncurry
+    (Int, Double) -> String  ~  Int -> Double -> String
+    \end{minted}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Funciones sobre tipos numéricos}
+
+  \begin{itemize}
+    \item Idris incluye por defecto múltiples funciones para trabajar sobre tipos
+      numéricos:
+      \vspace{4pt}
+      \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+      (+) : Int -> Int -> Int
+      (*) : Int -> Int -> Int
+      \end{minted}
+    \item Estas mismas funciones existen para los demás tipos numéricos:
+      \mintinline[fontsize=\scriptsize]{idris}{Nat, Integer y Double}.
+    \item También se incluyen la función de resta, pero no está definida para
+      \mintinline[fontsize=\scriptsize]{idris}{Nat}.
+      \vspace{4pt}
+      \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+      (-) : Int -> Int -> Int
+      \end{minted}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Funciones sobre tipos numéricos (continuación)}
+
+  \begin{itemize}
+    \item Además, define la operación de división entera y módulo para los tipos
+      enteros (\mintinline[fontsize=\scriptsize]{idris}{Int e Integer}):
+      \vspace{4pt}
+      \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+      div : Int -> Int -> Int
+      mod : Int -> Int -> Int
+      \end{minted}
+    \item Finalmente, también define la división de números de punto flotante:
+      \vspace{4pt}
+      \begin{minted}[fontsize=\scriptsize,autogobble]{idris}
+      (/) : Double -> Double -> Double
+      \end{minted}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Aplicación de funciones}
+
+  \begin{itemize}
+    \item Lo más relevante que se puede hacer con una función es aplicarla.
+    \item Como esto es lo más común de hacer, en Idris se proporciona la sintaxis de
+      aplicación de función que consiste en lo siguiente:
+      \begin{itemize}
+        \item Empieza con una \textbf{expresión} del tipo función.
+        \item Es seguida por 1 o más expresiones separadas por espacios
+          en blanco, que serán los argumentos para la función.
+        \item Una \textbf{expresión de aplicación función} es válida cuando:
+          \begin{itemize}
+            \item se proporcionan expresiones con los tipos correspondientes a los
+              parámetros que declara la función.
+            \item se proporciona una cantidad de argumentos \textbf{menor o igual}
+              a la cantidad de parámetros que declara la función.
+          \end{itemize}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Ejemplos de aplicación funciones}
+  \begin{columns}[T]
+
+    \begin{column}{.48\textwidth}
+      \begin{listing}[H]
+        \begin{center}
+          \begin{minipage}{0.6\textwidth}
+              \begin{minted}[fontsize=\scriptsize, autogobble]{idris}
+              sumar : Int -> Int -> Int
+              sumar = (+)
+
+              x : Int
+              x = 10
+
+              y : Int
+              y = 20
+
+              z : Int
+              z = sumar x y -- 30
+
+              z' : Int
+              z' = sumar 10 20
+              \end{minted}
+          \end{minipage}
+        \end{center}
+        \caption{Aplicación de funciones en Idris}
+        \label{lst:apfunidris1}
+      \end{listing}
+    \end{column}
+
+
+    \hspace{-0.05\textwidth}
+    \vrule
+    \hspace{0.025\textwidth}
+
+    \begin{column}{.5\textwidth}
+      \begin{listing}[H]
+        \begin{center}
+          \begin{minipage}{\textwidth}
+              \begin{minted}[fontsize=\scriptsize, autogobble, breaklines]{java}
+              int sumar(int a, int b) {
+                return a + b;
+              }
+
+              int x = 10;
+
+              int y = 20;
+
+
+              int z = sumar(x, y);
+
+
+              int zp = sumar(10, 20);
+              \end{minted}
+          \end{minipage}
+        \end{center}
+        \caption{Aplicación de funciones en Java}
+        \label{lst:apfunjava1}
+      \end{listing}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Operadores}
+
+  \begin{itemize}
+    \item En Idris, se pueden definir operadores, que no son más que funciones pero que
+      se pueden aplicar de manera \textbf{infija} o \textbf{prefija}.
+    \item Ejemplos de estos operadores son las funciones aritméticas que hemos visto con
+      anterioridad:
+      \begin{listing}[H]
+        \begin{center}
+          \begin{minipage}{0.5\textwidth}
+              \begin{minted}[fontsize=\scriptsize, autogobble, breaklines]{idris}
+              x : Int
+              x = 10
+              y : Int
+              y = 20
+
+              z : Int
+              z = (+) 10 20
+
+              z' : Int
+              z = 10 + 20
+              \end{minted}
+          \end{minipage}
+        \end{center}
+        \caption{Aplicación de operadores}
+        \label{lst:apopidris1}
+      \end{listing}
+  \end{itemize}
+\end{frame}
+
+\end{document}
