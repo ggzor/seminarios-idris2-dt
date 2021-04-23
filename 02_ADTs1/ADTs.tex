@@ -1,0 +1,693 @@
+\documentclass{beamer}
+\usetheme[progressbar=frametitle]{metropolis}
+\setbeamertemplate{frame numbering}[fraction]
+\useoutertheme{metropolis}
+\useinnertheme{metropolis}
+\usefonttheme{metropolis}
+
+% Barra de progreso más ancha
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{2pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{2pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{2pt}
+\makeatother
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[compatibility=false]{caption}
+\usepackage[listings,theorems]{tcolorbox}
+\usepackage{minted}
+
+\usemintedstyle{friendly}
+
+\DeclareCaptionFont{captionfont}{\fontsize{8}{8}\selectfont}
+\captionsetup{font=captionfont}
+
+\title{Programación con tipos dependientes en Idris 2}
+\subtitle{ADTs I: Bool}
+\author{Axel Suárez Po}
+\institute{BUAP}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Contenidos}
+  \tableofcontents
+\end{frame}
+
+\section{Introducción}
+
+\begin{frame}[fragile]
+  \frametitle{Una pregunta interesante}
+
+  \Large{¿Cuántas funciones \emph{distintas} hay de \mintinline{idris}|Bool -> Bool|?}
+  \vspace{10pt}
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.35\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          f : Bool -> Bool
+          f b = ?r
+
+          \end{minted}
+      \end{minipage}
+      \hspace{-0.05\textwidth}
+      \vrule
+      \hspace{0.025\textwidth}
+      \begin{minipage}{0.35\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, breaklines]{java}
+          boolean f(boolean b) {
+            return ?;
+          }
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Bool a Bool en Idris y Java}
+    \label{lst:btobIdrisJava}
+  \end{listing}
+
+
+  \footnotetext[1]{\scriptsize{Trate de contestar en menos de 10 segundos}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Las funciones obvias}
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          -- La función not
+          notb : Bool -> Bool
+          notb True  = False
+          notb False = True
+
+
+
+          -- La función identidad
+          idb : Bool -> Bool
+          idb True  = True
+          idb False = False
+
+
+          \end{minted}
+      \end{minipage}
+      \hspace{-0.05\textwidth}
+      \vrule
+      \hspace{0.025\textwidth}
+      \begin{minipage}{0.45\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{java}
+          boolean notb(boolean b) {
+            if (b == true)
+              return false;
+            else
+              return true;
+          }
+
+          boolean idb(boolean b) {
+            if (b == true)
+              return true;
+            else
+              return false;
+          }
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Funciones Bool a Bool obvias.}
+    \label{lst:btobIdrisJavaObvias}
+  \end{listing}
+
+
+  \footnotetext[1]{\scriptsize{Claramente se pueden escribir de forma más concisa.}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Las funciones no tan obvias}
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.5\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+            -- La función constante True
+            constTrue : Bool -> Bool
+            constTrue True  = True
+            constTrue False = True
+
+
+
+            -- La función constante False
+            constFalse : Bool -> Bool
+            constFalse True  = False
+            constFalse False = False
+
+
+          \end{minted}
+      \end{minipage}
+      \hspace{-0.05\textwidth}
+      \vrule
+      \hspace{0.025\textwidth}
+      \begin{minipage}{0.45\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{java}
+            boolean constTrue(boolean b) {
+              if (b == true)
+                return true;
+              else
+                return true;
+            }
+
+            boolean constFalse(boolean b) {
+              if (b == true)
+                return false;
+              else
+                return false;
+            }
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Funciones Bool a Bool no tan obvias.}
+    \label{lst:btobIdrisJavaNoObvias}
+  \end{listing}
+
+  \footnotetext[1]{\scriptsize{¿Serán todas? ¿Cómo estar seguro?}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Una pregunta más interesante}
+
+  \large{¿Cuántas funciones hay de \mintinline{idris}|Bool -> Bool -> Bool|?}
+  \vspace{10pt}
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.45\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          f : Bool -> Bool -> Bool
+          f a b = ?r
+
+          \end{minted}
+      \end{minipage}
+      \hspace{-0.05\textwidth}
+      \vrule
+      \hspace{0.025\textwidth}
+      \begin{minipage}{0.53\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, breaklines]{java}
+          boolean f(boolean a, boolean b) {
+            return ?;
+          }
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Dos Bool's a Bool en Idris y Java}
+    \label{lst:2boolIdrisJava}
+  \end{listing}
+\end{frame}
+
+\section{Tipos de datos algebraicos}
+\subsection{Alternativas}
+\subsection{Pattern matching en Alternativas}
+
+\begin{frame}[fragile]
+  \frametitle{¿Qué es un tipo de datos algebraico?}
+
+  \begin{block}{ADT}
+    \vspace{8pt}
+    Un tipo de datos algebraico (ADT) es un tipo de datos \textbf{compuesto},
+    esto quiere decir que se forma combinando otros tipos de datos.
+
+    Las dos clases más comunes de tipos de datos compuestos utilizados son:
+    \begin{itemize}
+      \item \textbf{Productos:} Los valores de este tipo son combinaciones de valores de
+        los tipos que lo componen. (\textbf{Tuplas})
+      \item \textbf{Sumas:} Los valores de este tipo alternan entre tipos distintos de
+        forma excluyente. (\textbf{Either})
+    \end{itemize}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sumas}
+
+  Los \textbf{tipos suma} (\emph{sum types}) también suelen nombrarse como
+  \textbf{coproductos, uniones disjuntas (etiquetadas), variantes o alternativas.}
+
+  La sintaxis para definir un tipo suma, es separando sus \textbf{constructores} con
+  barras verticales (|).
+
+  Un ejemplo de estos, es un tipo bastante conocido: \mintinline{idris}|Bool|.
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.5\textwidth}
+        \begin{minted}[autogobble]{idris}
+          data Bool = False | True
+        \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Definición de Bool de la librería estándar.}
+    \label{lst:booldefinition}
+  \end{listing}
+
+  \footnotetext[1]{\scriptsize{Más adelante se definirá con precisión a que se refiere
+  la palabra \emph{constructores}.}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sumas: Construcción}
+
+  Para \emph{construir} un valor que pertenezca a este tipo se hace uso de sus
+  constructores:
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.5\textwidth}
+        \begin{minted}[autogobble,fontsize=\scriptsize]{idris}
+          data Bool = False | True
+
+          x : Bool
+          x = True
+
+          x' : Bool
+          x' = False
+        \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Valores del tipo Bool.}
+    \label{lst:boolvalues}
+  \end{listing}
+
+  \footnotetext[1]{\scriptsize{Nótese otra vez que se está siendo \emph{vago}
+  con la definición de qué quiere decir \textbf{construir}.}}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sumas: Utilización}
+
+  Cuando se tiene una expresión de un tipo suma, hay una cantidad de cosas limitadas
+  que se pueden hacer:
+
+  \begin{itemize}
+    \item Ignorar el valor.
+    \item Colocarlo en \textbf{uno o más lugares} donde se espera una
+      expresión de ese tipo.
+      \begin{itemize}
+        \item Pasarlo como parámetro
+        \item Referenciarlo en expresiones con el mismo tipo
+      \end{itemize}
+    \item \emph{Deconstruirlo} con \textbf{múltiples} \emph{patrones de constructor},
+      utilizando el \textbf{pattern matching}.
+  \end{itemize}
+
+  Las dos primeras opciones son comunes a todas las expresiones, pero la
+  última es única de los tipos suma.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Pattern matching}
+
+  Cuando se utiliza \textbf{pattern matching}, se busca ``encajar'' (\emph{match}) un
+  valor con ciertos patrones, pudiendo asignar variables cuando este \emph{match}
+  es exitoso.
+
+  Este pattern matching puede ocurrir en diferentes posiciones, pero nos enfocaremos por
+  el momento en la \textbf{definición de funciones}.
+
+  El pattern matching puede tomar varias formas:
+  \begin{itemize}
+    \item Patrón de literales
+    \item \textbf{Patrón de constructor}
+    \item Patrón de variable y patrón de descartamiento (\emph{catch all})
+    \item Patrones especializados: \textbf{as-patterns, dot-patterns, view-patterns,
+      with-patterns, etc}.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Pattern matching: Patrón de constructor}
+
+  El pattern matching en el que centraremos nuestra atención es el
+  \textbf{patrón de constructor.}
+
+  Tal como su nombre lo indica, consiste en enumerar los constructores del tipo
+  que se está operando:
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Bool = False | True
+
+          -- La función not
+          notb : Bool -> Bool
+          notb True  = False
+          notb False = True
+
+          -- La función identidad
+          idb : Bool -> Bool
+          idb True  = True
+          idb False = False
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Patrón de constructor}
+    \label{lst:matchconstructor}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Pattern matching: Patrón de variable}
+
+  Sin embargo, la función identidad se puede definir de una manera más sencilla.
+
+  Para simplemente capturar el valor se puede utilizar un identificador (que no se
+  encuentre en otro patrón):
+
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Bool = False | True
+
+          idb : Bool -> Bool
+          idb True  = True
+          idb False = False
+
+          idb' : Bool -> Bool
+          idb' b = b
+
+          -- Cualquier identificador válido
+          idb'' : Bool -> Bool
+          idb'' nombreLargo = nombreLargo
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Patrón de variable}
+    \label{lst:matchvariable}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Pattern matching: Patrón de descartamiento}
+
+  Existen ocasiones en las que no es necesario utilizar un parámetro, como
+  en las funciones constantes que se encontraron con anterioridad:
+
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Bool = False | True
+
+          constTrue : Bool -> Bool
+          constTrue True  = True
+          constTrue False = True
+
+          -- Otra alternativa
+          constTrue'' : Bool -> Bool
+          constTrue'' b = True
+
+          -- Una forma más concisa
+          constTrue' : Bool -> Bool
+          constTrue' _ = True
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Patrón de descartamiento}
+    \label{lst:matchvariable}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Pattern matching: Catch-all}
+
+  Los dos tipos anteriores de pattern matching (variable y descartamiento) tienen
+  un comportamiento que se conoce como \textbf{catch-all}.
+
+  Esto quiere decir que cuando se encuentra uno  de estos, los siguientes patrones
+  sobre este mismo parámetro se vuelven inalcanzables.
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          -- Uso incorrecto de un patrón catch-all
+          -- compila con advertencias
+          constTrue'alt : Bool -> Bool
+          constTrue'alt _     = True
+          constTrue'alt False = False
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Patrón no alcanzable}
+    \label{lst:matchunreachable}
+  \end{listing}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Totalidad}
+
+  Los patrones catch-all son particularmente útiles para asegurar la
+  \textbf{totalidad} de las funciones.
+
+  Por ejemplo, el tipo de datos \mintinline{idris}|Char| lo podemos conceptualizar como
+  un tipo suma de todos los carácteres posibles, por lo que una función
+  \mintinline{idris}|Char -> String| requeriría bastantes patrones.
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          -- Esta definición solo es conceptual
+          data Char = 'a' | 'b' | ...
+
+          inicialANombre : Char -> String
+          inicialANombre 'a' = "Axel"
+          inicialANombre 'i' = "Iván"
+          inicialANombre 'j' = "Jesús"
+          inicialANombre 's' = "Samuel"
+          inicialANombre  _  = "Otro"
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Catch-all para función total}
+    \label{lst:catchalltotal}
+  \end{listing}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Parcialidad}
+
+  Si no se han cubierto todas las alternativas y además no se incluye un patrón catch
+  all, entonces se dice que la función es \textbf{parcial}.
+
+  Existen dos casos en los que se tienen funciones parciales:
+  \begin{itemize}
+    \item \textbf{Error del programador:} Al programador le faltó considerar alternativas
+      para la función, por lo que deberá agregar un patrón catch-all o manejar los demás
+      casos.
+    \item \textbf{Se requiere una función parcial:} En el casos de que realmente se
+      requiera una función parcial, Idris requiere que se anote explícitamente como tal
+      con la palabra clave \mintinline{idris}|partial|.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{GADT's}
+
+  La notación de GADT's es una alternativa para definir tipos de datos de una forma más
+  explícita.
+
+  Además, permite definir tipos de datos \textbf{indexados} y \textbf{parametrizados}.
+
+  El tipo de datos \mintinline{idris}|Bool| también se puede definir como sigue:
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Bool : Type where
+            False : Bool
+            True  : Bool
+
+          -- La definición anterior
+          data Bool = False | True
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{GADT para Bool}
+    \label{lst:catchalltotal}
+  \end{listing}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{GADT's}
+
+  Aparte de ser más explícita y tener mayores capacidades, también permite ver
+  claramente que es lo que implica definir un tipo de datos:
+  \begin{itemize}
+    \item \mintinline{idris}|Bool| es un tipo
+    \item \mintinline{idris}|False| es del tipo \mintinline{idris}|Bool|
+    \item \mintinline{idris}|True| es del tipo \mintinline{idris}|Bool|
+    \item \textbf{No hay otra cosa que sea un} \mintinline{idris}|Bool|
+  \end{itemize}
+  Esta última regla es lo que garantiza que un pattern matching exhaustivo implique
+  la totalidad de una función.
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Bool : Type where
+            False : Bool
+            True  : Bool
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{GADT para Bool}
+    \label{lst:catchalltotal}
+  \end{listing}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipos suma, otra vez.}
+
+  Se ha mencionado que a estos se les conoce como tipos suma, pero no se ha mostrado
+  un ejemplo de suma de tipos.
+
+  A continuación se muestra una:
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data RGB = Red | Green | Blue
+          data CMY = Cyan | Magenta | Yellow
+
+          data Color = R RGB | C CMY
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{ADT para Colores}
+    \label{lst:catchalltotal}
+  \end{listing}
+
+  Como se puede observar, se han definido dos tipos de datos y se ha creado una suma de
+  ellos.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipo suma: Colores}
+
+  Si se quisiera definir una función sobre este tipo de datos, se puede realizar
+  pattern matching recursivo sobre sus constructores:
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          complemento : Color -> Color
+          complemento (R Red) = C Cyan
+          complemento (R Green) = C Magenta
+          complemento (R Blue) = C Yellow
+          complemento (C Cyan) = R Red
+          complemento (C Magenta) = R Green
+          complemento (C Yellow) = R Blue
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Función sobre tipo de datos más complejo}
+    \label{lst:funcioncolor}
+  \end{listing}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tipo suma: Bool}
+
+  \mintinline{idris}|Bool| no parece ser un tipo suma por la forma en que está conformado, sin embargo,
+  utilizando el tipo \mintinline{idris}|Unit|, se puede ver que es la unión etiquetada
+  de \mintinline{idris}|Unit| consigo mismo.
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Bool' = T () | F ()
+
+          -- Isomorfismo Bool y Bool'
+          from : Bool -> Bool'
+          from True  = T ()
+          from False = F ()
+
+          to : Bool' -> Bool
+          to (T _) = True
+          to (F _) = False
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Isomorfismo Bool}
+    \label{lst:isomorfismo}
+  \end{listing}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Unit}
+
+  \mintinline{idris}|Unit| es un tipo de datos primitivo que sólo tiene un constructor
+  que no puede contener información.
+
+  El tipo de datos \mintinline{idris}|Unit| se define como sigue:
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.42\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data () = ()
+          -- Alternativamente
+          data Unit = Unit
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Tipo de datos Unit}
+    \label{lst:unitdatatype}
+  \end{listing}
+
+  Estas definiciones son especiales en Idris y no se pueden replicar desde el código
+  del usuario.
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Unit}
+
+  Finalmente, es importante resaltar que las uniones etiquetadas de tipos se pueden
+  realizar entre cualesquiera tipos.
+
+  \begin{listing}[H]
+    \begin{center}
+      \begin{minipage}{0.6\textwidth}
+          \begin{minted}[fontsize=\scriptsize, autogobble, stripnl=false]{idris}
+          data Numero = NS String | NI Int
+
+          data App = Pure Int | Fn (Int -> Int)
+          \end{minted}
+      \end{minipage}
+    \end{center}
+    \caption{Unión de tipos}
+    \label{lst:masunionesdetipos}
+  \end{listing}
+\end{frame}
+
+\end{document}

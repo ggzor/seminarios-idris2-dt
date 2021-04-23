@@ -25,10 +25,12 @@ cabal.project.local~
 
 ### Agda
 *.agdai
+.*.vim
 MAlonzo/**
 
 ### Idris
 *.ibc
+*.idr~
 *.o
 
 ### LaTeX
